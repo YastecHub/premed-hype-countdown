@@ -6,6 +6,7 @@ import { ExamCard } from "./components/ExamCard";
 import { differenceInCalendarDays } from "date-fns";
 import { motion } from "motion/react";
 import { Sparkles, GraduationCap, ArrowDown } from "lucide-react";
+import { Analytics } from "@vercel/analytics/react";
 
 export default function App() {
   const [now, setNow] = useState(new Date());
@@ -30,6 +31,7 @@ export default function App() {
         <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-cyan-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse delay-1000" />
       </div>
 
+      <Analytics />
       <div className="relative z-10 max-w-md mx-auto md:max-w-3xl px-4 py-8 md:py-12 flex flex-col min-h-screen">
         
         {/* Header Section */}
