@@ -63,8 +63,8 @@ export default function App() {
           </h1>
           <div className="overflow-hidden relative w-full max-w-sm mx-auto h-6 mb-2">
              <div className="animate-marquee whitespace-nowrap text-xs font-medium text-white/40 uppercase tracking-wider">
-                MBBS • Pharmacy • Nursing • Radiography • Dentistry • MLS • Physiotherapy • Pharmacology • Physiology •
-                MBBS • Pharmacy • Nursing • Radiography • Dentistry • MLS • Physiotherapy • Pharmacology • Physiology •
+                MBBS • Pharmacy • Nursing • Radiography • Dentistry • MLS • Physiotherapy • Anatomy • Pharmacology • Physiology •
+                MBBS • Pharmacy • Nursing • Radiography • Dentistry • MLS • Physiotherapy • Anatomy • Pharmacology • Physiology •
              </div>
           </div>
           <p className="text-white/50 text-sm md:text-base">

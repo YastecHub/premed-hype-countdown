@@ -3,7 +3,7 @@ import { differenceInCalendarDays, differenceInSeconds } from "date-fns";
 
 export interface NotificationPreferences {
   enabled: boolean;
-  time: string; // HH:MM format, default "08:00"
+  time: string;
 }
 
 const NOTIFICATION_PREFERENCES_KEY = "premed-notification-prefs";
