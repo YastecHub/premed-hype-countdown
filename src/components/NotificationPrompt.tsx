@@ -7,6 +7,7 @@ import {
   setupDailyNotificationScheduler,
   getNotificationPreferences,
   setNotificationPreferences,
+  sendImmediateTestNotification,
 } from "../lib/notifications";
 
 export function NotificationPrompt() {
@@ -47,6 +48,10 @@ export function NotificationPrompt() {
       setIsVisible(false);
       // Setup the scheduler
       setupDailyNotificationScheduler("08:00");
+      // Send immediate test notification so user knows it's working
+      setTimeout(() => {
+        sendImmediateTestNotification();
+      }, 500);
     }
   };
 

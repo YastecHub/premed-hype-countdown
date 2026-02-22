@@ -1,5 +1,5 @@
 import { EXAMS } from "../data";
-import { differenceInCalendarDays, differenceInSeconds } from "date-fns";
+import { differenceInCalendarDays, differenceInSeconds, intervalToDuration } from "date-fns";
 
 export interface NotificationPreferences {
   enabled: boolean;
@@ -122,6 +122,72 @@ export function sendDailyReminder(): void {
   localStorage.setItem(NOTIFICATION_SHOWN_TODAY_KEY, today);
 
   // Click to focus window
+  notification.onclick = () => {
+    window.focus();
+    notification.close();
+  };
+}
+
+export function sendImmediateTestNotification(): void {
+  if (!hasNotificationPermission()) {
+    return;
+  }
+
+  const now = new Date();
+  const upcomingExams = EXAMS.filter(exam => new Date(exam.timestamp) > now);
+
+  if (upcomingExams.length === 0) {
+    const title = "🎉 UNILAG PreMed - All Done!";
+    const body = "Congratulations! All your exams are complete. You crushed it!";
+    
+    new Notification(title, {
+      body: body,
+      icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23000' width='100' height='100'/><text x='50' y='70' font-size='60' font-weight='bold' text-anchor='middle' fill='%2306b6d4'>🎉</text></svg>",
+      badge: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2306b6d4' width='100' height='100'/><text x='50' y='70' font-size='60' font-weight='bold' text-anchor='middle' fill='white'>✓</text></svg>",
+      tag: "test-notification",
+      requireInteraction: true
+    });
+    return;
+  }
+
+  const nextExam = upcomingExams[0];
+  const target = new Date(nextExam.timestamp);
+  const diffSeconds = differenceInSeconds(target, now);
+  const duration = intervalToDuration({
+    start: now,
+    end: diffSeconds > 0 ? target : now,
+  });
+
+  let countdownText = "";
+  const days = duration.days || 0;
+  const hours = duration.hours || 0;
+
+  if (days === 0 && hours === 0) {
+    countdownText = "NOW! 🚀";
+  } else if (days === 0) {
+    countdownText = `${hours}h remaining 💪`;
+  } else if (days === 1) {
+    countdownText = `${days}d ${hours}h - TOMORROW! 💪`;
+  } else {
+    countdownText = `${String(days).padStart(2, '0')}d ${String(hours).padStart(2, '0')}h`;
+  }
+
+  const examDate = new Date(nextExam.timestamp);
+  const dateStr = examDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  const timeStr = examDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+  const title = `📚 UNILAG PreMed Exam Countdown`;
+  const body = `${nextExam.course}\n${countdownText}\n\n📅 ${dateStr}\n🕐 ${timeStr}\n\nYou'll get daily reminders at 8am. Stay focused! ✨`;
+
+  const notification = new Notification(title, {
+    body: body,
+    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23000' width='100' height='100'/><text x='50' y='70' font-size='60' font-weight='bold' text-anchor='middle' fill='%2306b6d4'>📚</text></svg>",
+    badge: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2306b6d4' width='100' height='100'/><text x='50' y='70' font-size='60' font-weight='bold' text-anchor='middle' fill='white'>X</text></svg>",
+    dir: "auto" as const,
+    tag: "test-notification",
+    requireInteraction: true
+  });
+
   notification.onclick = () => {
     window.focus();
     notification.close();
