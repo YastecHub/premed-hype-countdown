@@ -1,5 +1,6 @@
 import { EXAMS } from "../data";
 import { differenceInCalendarDays, differenceInSeconds, intervalToDuration } from "date-fns";
+import { sendNotificationViaServiceWorker } from "./sw-register";
 
 export interface NotificationPreferences {
   enabled: boolean;
@@ -111,23 +112,10 @@ export function sendDailyReminder(): void {
   const title = "Study Reminder 📖";
   const body = `${examMessage}\n\n${motivation}`;
 
-  const notification = new Notification(title, {
-    body: body,
-    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23000' width='100' height='100'/><text x='50' y='70' font-size='60' font-weight='bold' text-anchor='middle' fill='%2306b6d4'>📚</text></svg>",
-    badge: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2306b6d4' width='100' height='100'/><text x='50' y='70' font-size='60' font-weight='bold' text-anchor='middle' fill='white'>X</text></svg>",
-    dir: "auto" as const,
-    tag: "daily-reminder",
-    requireInteraction: false
-  });
-
   // Mark as shown today
   localStorage.setItem(NOTIFICATION_SHOWN_TODAY_KEY, today);
 
-  // Click to focus window
-  notification.onclick = () => {
-    window.focus();
-    notification.close();
-  };
+  sendNotificationViaServiceWorker(title, body, 'daily-reminder');
 }
 
 export function sendImmediateTestNotification(): void {
@@ -142,13 +130,7 @@ export function sendImmediateTestNotification(): void {
     const title = "🎉 UNILAG PreMed - All Done!";
     const body = "Congratulations! All your exams are complete. You crushed it!";
     
-    new Notification(title, {
-      body: body,
-      icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23000' width='100' height='100'/><text x='50' y='70' font-size='60' font-weight='bold' text-anchor='middle' fill='%2306b6d4'>🎉</text></svg>",
-      badge: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2306b6d4' width='100' height='100'/><text x='50' y='70' font-size='60' font-weight='bold' text-anchor='middle' fill='white'>✓</text></svg>",
-      tag: "test-notification",
-      requireInteraction: true
-    });
+    sendNotificationViaServiceWorker(title, body, 'test-notification');
     return;
   }
 
@@ -181,19 +163,7 @@ export function sendImmediateTestNotification(): void {
   const title = `📚 UNILAG PreMed Exam Countdown`;
   const body = `${nextExam.course}\n${countdownText}\n\n📅 ${dateStr}\n🕐 ${timeStr}\n\nYou'll get daily reminders at 8am. Stay focused! ✨`;
 
-  const notification = new Notification(title, {
-    body: body,
-    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23000' width='100' height='100'/><text x='50' y='70' font-size='60' font-weight='bold' text-anchor='middle' fill='%2306b6d4'>📚</text></svg>",
-    badge: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2306b6d4' width='100' height='100'/><text x='50' y='70' font-size='60' font-weight='bold' text-anchor='middle' fill='white'>X</text></svg>",
-    dir: "auto" as const,
-    tag: "test-notification",
-    requireInteraction: true
-  });
-
-  notification.onclick = () => {
-    window.focus();
-    notification.close();
-  };
+  sendNotificationViaServiceWorker(title, body, 'test-notification');
 }
 
 export function setupDailyNotificationScheduler(preferredTime: string = "08:00"): (() => void) {
@@ -277,22 +247,10 @@ export function send3HourIntervalNotification(): void {
   const title = `Study Check-In 📖`;
   const body = `${nextExam.course}\n${countdownText}\n\n${examMessage}\n\n${motivation}`;
 
-  const notification = new Notification(title, {
-    body: body,
-    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23000' width='100' height='100'/><text x='50' y='70' font-size='60' font-weight='bold' text-anchor='middle' fill='%2306b6d4'>📚</text></svg>",
-    badge: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2306b6d4' width='100' height='100'/><text x='50' y='70' font-size='60' font-weight='bold' text-anchor='middle' fill='white'>!</text></svg>",
-    dir: "auto" as const,
-    tag: "interval-reminder",
-    requireInteraction: false
-  });
-
   // Mark when this notification was sent
   localStorage.setItem(LAST_3HOUR_NOTIFICATION_KEY, now.getTime().toString());
 
-  notification.onclick = () => {
-    window.focus();
-    notification.close();
-  };
+  sendNotificationViaServiceWorker(title, body, 'interval-reminder');
 }
 
 export function setup3HourNotificationScheduler(): (() => void) {
@@ -360,17 +318,5 @@ export function sendNotificationToReturningUser(): void {
   const title = `📚 UNILAG PreMed - Welcome Back!`;
   const body = `${nextExam.course} • ${countdownText}\n\n📅 ${dateStr} | 🕐 ${timeStr}\n\n${motivation}`;
 
-  const notification = new Notification(title, {
-    body: body,
-    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23000' width='100' height='100'/><text x='50' y='70' font-size='60' font-weight='bold' text-anchor='middle' fill='%2306b6d4'>📚</text></svg>",
-    badge: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2306b6d4' width='100' height='100'/><text x='50' y='70' font-size='60' font-weight='bold' text-anchor='middle' fill='white'>X</text></svg>",
-    dir: "auto" as const,
-    tag: "returning-user-notification",
-    requireInteraction: false
-  });
-
-  notification.onclick = () => {
-    window.focus();
-    notification.close();
-  };
+  sendNotificationViaServiceWorker(title, body, 'returning-user-notification');
 }
