@@ -3,10 +3,12 @@ import { EXAMS } from "./data";
 import { Countdown } from "./components/Countdown";
 import { QuoteTicker } from "./components/QuoteTicker";
 import { ExamCard } from "./components/ExamCard";
+import { NotificationPrompt } from "./components/NotificationPrompt";
 import { differenceInCalendarDays } from "date-fns";
 import { motion } from "motion/react";
 import { Sparkles, GraduationCap, ArrowDown } from "lucide-react";
 import { Analytics } from "@vercel/analytics/react";
+import { setupDailyNotificationScheduler, hasNotificationPermission, getNotificationPreferences } from "./lib/notifications";
 
 export default function App() {
   const [now, setNow] = useState(new Date());
@@ -14,6 +16,17 @@ export default function App() {
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  // Setup daily notifications if enabled
+  useEffect(() => {
+    if (hasNotificationPermission()) {
+      const prefs = getNotificationPreferences();
+      if (prefs.enabled) {
+        const cleanup = setupDailyNotificationScheduler(prefs.time);
+        return cleanup;
+      }
+    }
   }, []);
 
   // Find the next upcoming exam
@@ -32,6 +45,7 @@ export default function App() {
       </div>
 
       <Analytics />
+      <NotificationPrompt />
       <div className="relative z-10 max-w-md mx-auto md:max-w-3xl px-4 py-8 md:py-12 flex flex-col min-h-screen">
         
         {/* Header Section */}
