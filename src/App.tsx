@@ -8,7 +8,7 @@ import { differenceInCalendarDays } from "date-fns";
 import { motion } from "motion/react";
 import { Sparkles, GraduationCap, ArrowDown } from "lucide-react";
 import { Analytics } from "@vercel/analytics/react";
-import { setupDailyNotificationScheduler, hasNotificationPermission, getNotificationPreferences } from "./lib/notifications";
+import { setupDailyNotificationScheduler, hasNotificationPermission, getNotificationPreferences, setup3HourNotificationScheduler, sendNotificationToReturningUser } from "./lib/notifications";
 
 export default function App() {
   const [now, setNow] = useState(new Date());
@@ -23,8 +23,19 @@ export default function App() {
     if (hasNotificationPermission()) {
       const prefs = getNotificationPreferences();
       if (prefs.enabled) {
-        const cleanup = setupDailyNotificationScheduler(prefs.time);
-        return cleanup;
+        // Setup daily notifications
+        const dailyCleanup = setupDailyNotificationScheduler(prefs.time);
+        
+        // Setup 3-hour interval notifications
+        const intervalCleanup = setup3HourNotificationScheduler();
+        
+        // Send notification to returning users
+        sendNotificationToReturningUser();
+        
+        return () => {
+          dailyCleanup?.();
+          intervalCleanup?.();
+        };
       }
     }
   }, []);

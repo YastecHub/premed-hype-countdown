@@ -46,6 +46,10 @@ export function NotificationPrompt() {
       });
       setIsEnabled(true);
       setIsVisible(false);
+      
+      // Clear the returning user flag so they get the returning user notification
+      localStorage.removeItem("premed-returning-user-notified");
+      
       // Setup the scheduler
       setupDailyNotificationScheduler("08:00");
       // Send immediate test notification so user knows it's working
