@@ -170,31 +170,40 @@ export function setupDailyNotificationScheduler(preferredTime: string = "08:00")
   // Parse time
   const [hours, minutes] = preferredTime.split(":").map(Number);
 
+  // If the scheduled time has already passed today, send now (catches missed notifications)
+  const now = new Date();
+  const scheduledToday = new Date();
+  scheduledToday.setHours(hours, minutes, 0, 0);
+  if (now >= scheduledToday) {
+    sendDailyReminder(); // internally checks if already sent today
+  }
+
+  // Use a closure-level variable so we can always cancel the latest timeout
+  let currentTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
   function scheduleNextNotification() {
     const now = new Date();
     const nextNotification = new Date();
     nextNotification.setHours(hours, minutes, 0, 0);
 
-    // If the time has already passed today, schedule for tomorrow
+    // Always push to tomorrow since we either just sent or it's still ahead
     if (nextNotification <= now) {
       nextNotification.setDate(nextNotification.getDate() + 1);
     }
 
-    const timeUntilNotification = differenceInSeconds(
-      nextNotification,
-      now
-    ) * 1000;
+    const timeUntilNotification = differenceInSeconds(nextNotification, now) * 1000;
 
-    const timeoutId = setTimeout(() => {
+    currentTimeoutId = setTimeout(() => {
       sendDailyReminder();
-      // Reschedule for next day
       scheduleNextNotification();
     }, timeUntilNotification);
-
-    return () => clearTimeout(timeoutId);
   }
 
-  return scheduleNextNotification();
+  scheduleNextNotification();
+
+  return () => {
+    if (currentTimeoutId !== null) clearTimeout(currentTimeoutId);
+  };
 }
 
 export function send3HourIntervalNotification(): void {

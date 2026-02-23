@@ -5,6 +5,8 @@ import {
   hasNotificationPermission,
   requestNotificationPermission,
   setupDailyNotificationScheduler,
+  setup3HourNotificationScheduler,
+  sendNotificationToReturningUser,
   getNotificationPreferences,
   setNotificationPreferences,
   sendImmediateTestNotification,
@@ -16,20 +18,17 @@ export function NotificationPrompt() {
   const [notificationsSupported, setNotificationsSupported] = useState(true);
 
   useEffect(() => {
-    // Check if notifications are supported
     if (!("Notification" in window)) {
       setNotificationsSupported(false);
       return;
     }
 
-    // Check if already enabled
     const hasPermission = hasNotificationPermission();
     const prefs = getNotificationPreferences();
 
     if (hasPermission && prefs.enabled) {
       setIsEnabled(true);
     } else if (!hasPermission && !prefs.enabled) {
-      // Show prompt if not already dismissed
       const dismissed = localStorage.getItem("premed-notification-dismissed");
       if (!dismissed) {
         setIsVisible(true);
@@ -47,12 +46,11 @@ export function NotificationPrompt() {
       setIsEnabled(true);
       setIsVisible(false);
       
-      // Clear the returning user flag so they get the returning user notification
       localStorage.removeItem("premed-returning-user-notified");
       
-      // Setup the scheduler
       setupDailyNotificationScheduler("08:00");
-      // Send immediate test notification so user knows it's working
+      setup3HourNotificationScheduler();
+      sendNotificationToReturningUser();
       setTimeout(() => {
         sendImmediateTestNotification();
       }, 500);
