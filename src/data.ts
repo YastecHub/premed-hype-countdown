@@ -11,9 +11,9 @@ export const EXAMS: Exam[] = [
   { 
     id: 1, 
     course: "GST", 
-    date: "Monday, March 2", 
-    time: "9am - 12pm", 
-    timestamp: "2026-03-02T09:00:00", 
+    date: "Tuesday, March 3",
+    time: "9am - 12pm",
+    timestamp: "2026-03-03T09:00:00",
     venue: "DLI, BK2, GFLR(CBT)" 
   },
   { 
