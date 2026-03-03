@@ -9,6 +9,14 @@ export interface Exam {
 
 export const EXAMS: Exam[] = [
   {
+    id: 1,
+    course: "GST",
+    date: "Tuesday, March 3",
+    time: "9am - 12pm",
+    timestamp: "2026-03-03T09:00:00",
+    venue: "DLI BLK 1 & BLK 2"
+  },
+  {
     id: 2,
     course: "BIO 101",
     date: "Monday, March 9",
