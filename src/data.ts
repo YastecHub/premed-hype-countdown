@@ -50,7 +50,7 @@ export const EXAMS: Exam[] = [
   },
   {
     id: 7,
-    course: "PCY 101(Pharmacy students)",
+    course: "PCY 101(PharmD Students Only)",
     date: "Monday, March 23",
     time: "9am - 12pm",
     timestamp: "2026-03-23T09:00:00",
