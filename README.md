@@ -1,9 +1,3 @@
-<div align="center">
-  <h1>📚 Pre-Med Exam Countdown</h1>
-  <p>A real-time countdown timer for pre-med students at UNILAG College of Medicine & Health Sciences</p>
-  <p>Built with ❤️ by <strong>YastecHub</strong></p>
-</div>
-
 ## About
 
 Pre-Med Exam Countdown is a sleek, modern countdown application designed to keep pre-med students focused and motivated as they prepare for their exams. Track multiple exams, view detailed schedules, and stay pumped with daily motivational quotes.
@@ -66,5 +60,5 @@ Edit the exam data in [src/data.ts](src/data.ts) to add or modify exams with the
 
 ---
 
-Made with ❤️ for pre-med students crushing their exams
+Made for pre-med students crushing their exams
 

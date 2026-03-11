@@ -3,21 +3,21 @@
 declare const self: ServiceWorkerGlobalScope;
 
 const MOTIVATIONS = [
-  "🔥 You're crushing it! Keep that momentum going!",
-  "💪 Every study hour brings you closer to success!",
-  "🎯 Stay focused. Your future self will thank you!",
-  "⚡ This is your moment. Don't let it slip away!",
-  "🌟 You're a future healthcare legend. Act like it!",
-  "📚 Knowledge is power. Keep leveling up!",
-  "🚀 From student to doctor/nurse/pharmacist - you're on the way!",
-  "💯 Excellence isn't a destination, it's a habit. Build it!",
-  "🧠 Your brain is a supercomputer. Feed it knowledge!",
-  "✨ Radiology legend in the making? Keep going!",
-  "🏆 All-nighters are overrated. Smart study wins!",
-  "🎓 Future Radiographer, Pharmacist, Nurse - you got this!",
-  "⏰ Time invested now = Freedom later. Remember that!",
-  "🌈 Bad grades are temporary, but your effort is permanent!",
-  "💎 You're not just studying, you're becoming unstoppable!"
+  "You're crushing it! Keep that momentum going!",
+  "Every study hour brings you closer to success!",
+  "Stay focused. Your future self will thank you!",
+  "This is your moment. Don't let it slip away!",
+  "You're a future healthcare legend. Act like it!",
+  "Knowledge is power. Keep leveling up!",
+  "From student to doctor/nurse/pharmacist - you're on the way!",
+  "Excellence isn't a destination, it's a habit. Build it!",
+  "Your brain is a supercomputer. Feed it knowledge!",
+  "You're on your way to becoming a Radiology legend! Keep going!",
+  "All-nighters are overrated. Smart study wins!",
+  "Future Radiographer, Pharmacist, Nurse - you got this!",
+  "Time invested now = Freedom later. Remember that!",
+  "Bad grades are temporary, but your effort is permanent!",
+  "You're not just studying, you're becoming unstoppable!"
 ];
 
 function getRandomMotivation(): string {
