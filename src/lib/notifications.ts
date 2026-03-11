@@ -106,11 +106,33 @@ export function sendDailyReminder(): void {
     return; // Already sent today
   }
 
-  const examMessage = getUpcomingExamMessage();
-  const motivation = getRandomMotivation();
+  const now = new Date();
+  const upcomingExams = EXAMS.filter(exam => new Date(exam.timestamp) > now);
 
-  const title = "Study Reminder 📖";
-  const body = `${examMessage}\n\n${motivation}`;
+  if (upcomingExams.length === 0) {
+    const title = "🎉 All Exams Complete!";
+    const body = "You crushed it! Celebrate your success! 🚀";
+    localStorage.setItem(NOTIFICATION_SHOWN_TODAY_KEY, today);
+    sendNotificationViaServiceWorker(title, body, 'daily-reminder');
+    return;
+  }
+
+  const nextExam = upcomingExams[0];
+  const examDate = new Date(nextExam.timestamp);
+  const timeStr = examDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  const daysUntil = differenceInCalendarDays(examDate, now);
+
+  let countdownText = "";
+  if (daysUntil === 0) {
+    countdownText = "TODAY!";
+  } else if (daysUntil === 1) {
+    countdownText = "TOMORROW";
+  } else {
+    countdownText = `${daysUntil}d away`;
+  }
+
+  const title = `${nextExam.course} • ${countdownText} • ${timeStr}`;
+  const body = getRandomMotivation();
 
   // Mark as shown today
   localStorage.setItem(NOTIFICATION_SHOWN_TODAY_KEY, today);
@@ -129,12 +151,16 @@ export function sendImmediateTestNotification(): void {
   if (upcomingExams.length === 0) {
     const title = "🎉 UNILAG PreMed - All Done!";
     const body = "Congratulations! All your exams are complete. You crushed it!";
-    
+
     sendNotificationViaServiceWorker(title, body, 'test-notification');
     return;
   }
 
   const nextExam = upcomingExams[0];
+  const examDate = new Date(nextExam.timestamp);
+  const timeStr = examDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  const dateStr = examDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
   const target = new Date(nextExam.timestamp);
   const diffSeconds = differenceInSeconds(target, now);
   const duration = intervalToDuration({
@@ -147,21 +173,17 @@ export function sendImmediateTestNotification(): void {
   const hours = duration.hours || 0;
 
   if (days === 0 && hours === 0) {
-    countdownText = "NOW! 🚀";
+    countdownText = "NOW!";
   } else if (days === 0) {
-    countdownText = `${hours}h remaining 💪`;
+    countdownText = `${hours}h`;
   } else if (days === 1) {
-    countdownText = `${days}d ${hours}h - TOMORROW! 💪`;
+    countdownText = `${days}d ${hours}h`;
   } else {
-    countdownText = `${String(days).padStart(2, '0')}d ${String(hours).padStart(2, '0')}h`;
+    countdownText = `${days}d ${hours}h`;
   }
 
-  const examDate = new Date(nextExam.timestamp);
-  const dateStr = examDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-  const timeStr = examDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-
-  const title = `📚 UNILAG PreMed Exam Countdown`;
-  const body = `${nextExam.course}\n${countdownText}\n\n📅 ${dateStr}\n🕐 ${timeStr}\n\nYou'll get daily reminders at 8am. Stay focused! ✨`;
+  const title = `${nextExam.course} • ${dateStr} ${timeStr} • ${countdownText}`;
+  const body = "You got this! 💪";
 
   sendNotificationViaServiceWorker(title, body, 'test-notification');
 }
@@ -229,6 +251,10 @@ export function send3HourIntervalNotification(): void {
   }
 
   const nextExam = upcomingExams[0];
+  const examDate = new Date(nextExam.timestamp);
+  const timeStr = examDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  const dateStr = examDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
   const target = new Date(nextExam.timestamp);
   const diffSeconds = differenceInSeconds(target, now);
   const duration = intervalToDuration({
@@ -241,20 +267,17 @@ export function send3HourIntervalNotification(): void {
 
   let countdownText = "";
   if (days === 0 && hours === 0) {
-    countdownText = "NOW! 🚀";
+    countdownText = "NOW!";
   } else if (days === 0) {
-    countdownText = `${hours}h remaining 💪`;
+    countdownText = `${hours}h`;
   } else if (days === 1) {
-    countdownText = `${days}d ${hours}h - TOMORROW! 💪`;
+    countdownText = `${days}d ${hours}h`;
   } else {
-    countdownText = `${String(days).padStart(2, '0')}d ${String(hours).padStart(2, '0')}h`;
+    countdownText = `${days}d ${hours}h`;
   }
 
-  const examMessage = getUpcomingExamMessage();
-  const motivation = getRandomMotivation();
-
-  const title = `Study Check-In 📖`;
-  const body = `${nextExam.course}\n${countdownText}\n\n${examMessage}\n\n${motivation}`;
+  const title = `${nextExam.course} • ${dateStr} ${timeStr} • ${countdownText}`;
+  const body = getRandomMotivation();
 
   // Mark when this notification was sent
   localStorage.setItem(LAST_3HOUR_NOTIFICATION_KEY, now.getTime().toString());
@@ -297,6 +320,10 @@ export function sendNotificationToReturningUser(): void {
   }
 
   const nextExam = upcomingExams[0];
+  const examDate = new Date(nextExam.timestamp);
+  const timeStr = examDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  const dateStr = examDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
   const target = new Date(nextExam.timestamp);
   const diffSeconds = differenceInSeconds(target, now);
   const duration = intervalToDuration({
@@ -309,23 +336,17 @@ export function sendNotificationToReturningUser(): void {
 
   let countdownText = "";
   if (days === 0 && hours === 0) {
-    countdownText = "NOW! 🚀";
+    countdownText = "NOW!";
   } else if (days === 0) {
     countdownText = `${hours}h remaining`;
   } else if (days === 1) {
     countdownText = `${days}d ${hours}h - TOMORROW!`;
   } else {
-    countdownText = `${String(days).padStart(2, '0')}d ${String(hours).padStart(2, '0')}h remaining`;
+    countdownText = `${days}d ${hours}h remaining`;
   }
 
-  const examDate = new Date(nextExam.timestamp);
-  const dateStr = examDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-  const timeStr = examDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-
-  const motivation = getRandomMotivation();
-
-  const title = `📚 UNILAG PreMed - Welcome Back!`;
-  const body = `${nextExam.course} • ${countdownText}\n\n📅 ${dateStr} | 🕐 ${timeStr}\n\n${motivation}`;
+  const title = `${nextExam.course} • ${dateStr} ${timeStr} • ${countdownText}`;
+  const body = getRandomMotivation();
 
   sendNotificationViaServiceWorker(title, body, 'returning-user-notification');
 }

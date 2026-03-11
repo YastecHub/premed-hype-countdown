@@ -20,7 +20,7 @@ export const EXAMS: Exam[] = [
     id: 2,
     course: "BIO 101",
     date: "Monday, March 9",
-    time: "9am - 3pm",
+    time: "9am - 12pm",
     timestamp: "2026-03-09T09:00:00",
     venue: "DLI BLK 1 & BLK 2"
   },
@@ -36,23 +36,31 @@ export const EXAMS: Exam[] = [
     id: 5,
     course: "PHY 101",
     date: "Monday, March 16",
-    time: "9am - 3pm",
+    time: "9am - 12pm",
     timestamp: "2026-03-16T09:00:00",
     venue: "DLI BLK 1 & BLK 2"
   },
   {
     id: 6,
-    course: "COS 101/FSC 113",
+    course: "COS 101",
     date: "Tuesday, March 17",
-    time: "9am - 3pm",
+    time: "9am - 12pm",
     timestamp: "2026-03-17T09:00:00",
     venue: "DLI BLK 1 & BLK 2"
+  },
+  {
+    id: 7,
+    course: "PCY 101(Pharmacy students)",
+    date: "Monday, March 23",
+    time: "9am - 12pm",
+    timestamp: "2026-03-23T09:00:00",
+    venue: "Idi-Araba College of Medicine"
   },
   {
     id: 8,
     course: "MTH 101",
     date: "Tuesday, March 24",
-    time: "9am - 3pm",
+    time: "9am - 12pm",
     timestamp: "2026-03-24T09:00:00",
     venue: "DLI BLK 1 & BLK 2"
   },
@@ -60,7 +68,7 @@ export const EXAMS: Exam[] = [
     id: 9,
     course: "CHM 101",
     date: "Wednesday, March 25",
-    time: "9am - 3pm",
+    time: "9am - 12pm",
     timestamp: "2026-03-25T09:00:00",
     venue: "DLI BLK 1 & BLK 2"
   },
@@ -68,7 +76,7 @@ export const EXAMS: Exam[] = [
     id: 4,
     course: "ZOO 101",
     date: "Friday, March 27",
-    time: "9am - 3pm",
+    time: "9am - 12pm",
     timestamp: "2026-03-27T09:00:00",
     venue: "LT009 & LT018 & LT026"
   }
