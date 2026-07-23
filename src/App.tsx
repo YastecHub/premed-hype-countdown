@@ -3,6 +3,7 @@ import { EXAMS } from "./data";
 import { Countdown } from "./components/Countdown";
 import { QuoteTicker } from "./components/QuoteTicker";
 import { ExamCard } from "./components/ExamCard";
+import { ShareCountdown } from "./components/ShareCountdown";
 import { NotificationPrompt } from "./components/NotificationPrompt";
 import { differenceInCalendarDays } from "date-fns";
 import { motion, AnimatePresence } from "motion/react";
@@ -239,7 +240,6 @@ export default function App() {
             </>
           )}
         </div>
-
         {/* Exam Timeline */}
         <div className="space-y-2 pb-12">
           <div className="flex items-center justify-between px-2 mb-4">
@@ -297,10 +297,13 @@ export default function App() {
           </div>
         </div>
 
+        {/* Share Section */}
+        <ShareCountdown nextExam={nextExam} />
+
         {/* Footer */}
         <footer className="mt-auto text-center pt-8 border-t border-white/5">
-          <p className="text-xs text-white/20">
-            © 2026 YastecHub • Exam Prep Made with <span className="text-red-400">❤️</span>
+          <p className="text-xs text-white/25">
+            © 2026 YastecHub • Built for the future healthcare heroes of UNILAG. Secure the 5.0! 🩺🎓
           </p>
         </footer>
       </div>
