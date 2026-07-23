@@ -168,7 +168,10 @@ export default function App() {
 
                     {/* Test Button */}
                     <button
-                      onClick={() => sendImmediateTestNotification()}
+                      onClick={() => {
+                        sendImmediateTestNotification();
+                        setShowSettings(false);
+                      }}
                       className="w-full py-2 bg-cyan-500/10 hover:bg-cyan-500/25 border border-cyan-500/30 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors text-cyan-300 cursor-pointer"
                     >
                       Send Test Notification
