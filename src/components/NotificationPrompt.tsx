@@ -12,7 +12,11 @@ import {
   sendImmediateTestNotification,
 } from "../lib/notifications";
 
-export function NotificationPrompt() {
+interface NotificationPromptProps {
+  onEnabled?: () => void;
+}
+
+export function NotificationPrompt({ onEnabled }: NotificationPromptProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [isEnabled, setIsEnabled] = useState(false);
   const [notificationsSupported, setNotificationsSupported] = useState(true);
@@ -29,6 +33,9 @@ export function NotificationPrompt() {
     if (hasPermission && prefs.enabled) {
       setIsEnabled(true);
     } else if (!hasPermission && !prefs.enabled) {
+      if (Notification.permission === "denied") {
+        return; // Don't show the prompt if already denied
+      }
       const dismissed = localStorage.getItem("premed-notification-dismissed");
       if (!dismissed) {
         setIsVisible(true);
@@ -48,9 +55,10 @@ export function NotificationPrompt() {
       
       localStorage.removeItem("premed-returning-user-notified");
       
-      setupDailyNotificationScheduler("08:00");
-      setup3HourNotificationScheduler();
-      sendNotificationToReturningUser();
+      if (onEnabled) {
+        onEnabled();
+      }
+      
       setTimeout(() => {
         sendImmediateTestNotification();
       }, 500);

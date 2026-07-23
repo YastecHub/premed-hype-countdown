@@ -9,6 +9,12 @@ export async function registerServiceWorker(): Promise<void> {
     return;
   }
 
+  // Skip service worker in development mode to avoid 404/MIME errors since sw.js is only built in production
+  if (import.meta.env.DEV) {
+    console.log('Development mode detected: Skipping Service Worker registration. Client-side notifications fallback will be used.');
+    return;
+  }
+
   try {
     const registration = await navigator.serviceWorker.register('/sw.js', {
       scope: '/',
@@ -49,13 +55,40 @@ export async function sendNotificationViaServiceWorker(
   body: string,
   tag: string = 'exam-notification'
 ): Promise<void> {
+  const showFallbackNotification = () => {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      try {
+        new Notification(title, {
+          body: body,
+          tag: tag,
+          icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23000' width='100' height='100'/><text x='50' y='70' font-size='60' font-weight='bold' text-anchor='middle' fill='%2306b6d4'>📚</text></svg>"
+        });
+        console.log('Fallback client-side notification sent');
+      } catch (e) {
+        console.error('Failed to send fallback notification:', e);
+      }
+    }
+  };
+
   if (!('serviceWorker' in navigator)) {
-    console.log('Service Workers not supported');
+    console.log('Service Workers not supported - trying fallback');
+    showFallbackNotification();
     return;
   }
 
   try {
+    let resolved = false;
+    const fallbackTimeout = setTimeout(() => {
+      if (!resolved) {
+        console.log('Service worker ready timeout - using fallback notification');
+        showFallbackNotification();
+      }
+    }, 1000);
+
     const registration = await navigator.serviceWorker.ready;
+    resolved = true;
+    clearTimeout(fallbackTimeout);
+
     if (registration.active) {
       registration.active.postMessage({
         type: 'SEND_NOTIFICATION',
@@ -64,9 +97,13 @@ export async function sendNotificationViaServiceWorker(
         tag,
       });
       console.log('Notification message sent to Service Worker');
+    } else {
+      console.log('Service worker not active - using fallback notification');
+      showFallbackNotification();
     }
   } catch (error) {
-    console.error('Failed to send notification via Service Worker:', error);
+    console.error('Failed to send notification via Service Worker, using fallback:', error);
+    showFallbackNotification();
   }
 }
 

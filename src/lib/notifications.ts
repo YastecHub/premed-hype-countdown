@@ -71,7 +71,7 @@ function getRandomMotivation(): string {
   return MOTIVATIONS[Math.floor(Math.random() * MOTIVATIONS.length)];
 }
 
-function getUpcomingExamMessage(): string {
+export function getUpcomingExamMessage(): string {
   const now = new Date();
   const upcomingExams = EXAMS.filter(exam => new Date(exam.timestamp) > now);
 
@@ -131,8 +131,8 @@ export function sendDailyReminder(): void {
     countdownText = `${daysUntil}d away`;
   }
 
-  const title = `${nextExam.course} • ${countdownText} • ${timeStr}`;
-  const body = getRandomMotivation();
+  const title = `${nextExam.course} Countdown`;
+  const body = `${getUpcomingExamMessage()}\n${getRandomMotivation()}`;
 
   // Mark as shown today
   localStorage.setItem(NOTIFICATION_SHOWN_TODAY_KEY, today);
@@ -276,8 +276,8 @@ export function send3HourIntervalNotification(): void {
     countdownText = `${days}d ${hours}h`;
   }
 
-  const title = `${nextExam.course} • ${dateStr} ${timeStr} • ${countdownText}`;
-  const body = getRandomMotivation();
+  const title = `${nextExam.course} Countdown`;
+  const body = `${getUpcomingExamMessage()}\n${getRandomMotivation()}`;
 
   // Mark when this notification was sent
   localStorage.setItem(LAST_3HOUR_NOTIFICATION_KEY, now.getTime().toString());
@@ -345,8 +345,8 @@ export function sendNotificationToReturningUser(): void {
     countdownText = `${days}d ${hours}h remaining`;
   }
 
-  const title = `${nextExam.course} • ${dateStr} ${timeStr} • ${countdownText}`;
-  const body = getRandomMotivation();
+  const title = `${nextExam.course} Countdown`;
+  const body = `${getUpcomingExamMessage()}\n${getRandomMotivation()}`;
 
   sendNotificationViaServiceWorker(title, body, 'returning-user-notification');
 }

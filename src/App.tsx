@@ -5,44 +5,85 @@ import { QuoteTicker } from "./components/QuoteTicker";
 import { ExamCard } from "./components/ExamCard";
 import { NotificationPrompt } from "./components/NotificationPrompt";
 import { differenceInCalendarDays } from "date-fns";
-import { motion } from "motion/react";
-import { Sparkles, GraduationCap, ArrowDown } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { Sparkles, GraduationCap, ArrowDown, Bell, BellOff } from "lucide-react";
 import { Analytics } from "@vercel/analytics/react";
-import { setupDailyNotificationScheduler, hasNotificationPermission, getNotificationPreferences, setup3HourNotificationScheduler, sendNotificationToReturningUser } from "./lib/notifications";
+import {
+  setupDailyNotificationScheduler,
+  hasNotificationPermission,
+  getNotificationPreferences,
+  setNotificationPreferences,
+  setup3HourNotificationScheduler,
+  sendNotificationToReturningUser,
+  sendImmediateTestNotification,
+  requestNotificationPermission
+} from "./lib/notifications";
 
 export default function App() {
   const [now, setNow] = useState(new Date());
+  const [isNotificationEnabled, setIsNotificationEnabled] = useState(false);
+  const [notificationTime, setNotificationTime] = useState("08:00");
+  const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // Setup daily notifications if enabled
+  // Synchronize notification preferences state
   useEffect(() => {
-    if (hasNotificationPermission()) {
+    const checkPrefs = () => {
+      const hasPermission = hasNotificationPermission();
       const prefs = getNotificationPreferences();
-      if (prefs.enabled) {
-        // Setup daily notifications
-        const dailyCleanup = setupDailyNotificationScheduler(prefs.time);
-        
-        // Setup 3-hour interval notifications
-        const intervalCleanup = setup3HourNotificationScheduler();
-        
-        // Send notification to returning users
-        sendNotificationToReturningUser();
-        
-        return () => {
-          dailyCleanup?.();
-          intervalCleanup?.();
-        };
-      }
-    }
+      setIsNotificationEnabled(hasPermission && prefs.enabled);
+      setNotificationTime(prefs.time || "08:00");
+    };
+    checkPrefs();
+    window.addEventListener("focus", checkPrefs);
+    return () => window.removeEventListener("focus", checkPrefs);
   }, []);
 
+  // Setup/Tear down notifications on state change
+  useEffect(() => {
+    if (isNotificationEnabled) {
+      const dailyCleanup = setupDailyNotificationScheduler(notificationTime);
+      const intervalCleanup = setup3HourNotificationScheduler();
+      sendNotificationToReturningUser();
+      
+      return () => {
+        dailyCleanup?.();
+        intervalCleanup?.();
+      };
+    }
+  }, [isNotificationEnabled, notificationTime]);
+
+  const handleToggleNotifications = async () => {
+    if (isNotificationEnabled) {
+      setNotificationPreferences({ enabled: false, time: notificationTime });
+      setIsNotificationEnabled(false);
+    } else {
+      const granted = hasNotificationPermission();
+      if (granted) {
+        setNotificationPreferences({ enabled: true, time: notificationTime });
+        setIsNotificationEnabled(true);
+      } else {
+        const isGranted = await requestNotificationPermission();
+        if (isGranted) {
+          setNotificationPreferences({ enabled: true, time: notificationTime });
+          setIsNotificationEnabled(true);
+        } else {
+          alert("Notification permission denied by browser. Please enable them in browser settings.");
+        }
+      }
+    }
+  };
+
+  const handleTimeChange = (newTime: string) => {
+    setNotificationTime(newTime);
+    setNotificationPreferences({ enabled: isNotificationEnabled, time: newTime });
+  };
+
   // Find the next upcoming exam
-  // An exam is "next" if its timestamp is in the future
-  // If multiple are in the future, the one with the smallest difference is next
   const upcomingExams = EXAMS.filter((exam) => new Date(exam.timestamp) > now);
   const nextExam = upcomingExams.length > 0 ? upcomingExams[0] : null;
   const allCompleted = upcomingExams.length === 0;
@@ -56,8 +97,94 @@ export default function App() {
       </div>
 
       <Analytics />
-      <NotificationPrompt />
+      <NotificationPrompt onEnabled={() => setIsNotificationEnabled(true)} />
       <div className="relative z-10 max-w-md mx-auto md:max-w-3xl px-4 py-8 md:py-12 flex flex-col min-h-screen">
+        
+        {/* Top Control Bar */}
+        <div className="flex justify-end mb-2 relative">
+          <button
+            onClick={() => setShowSettings(!showSettings)}
+            className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 hover:text-white transition-all backdrop-blur-sm cursor-pointer relative z-50 flex items-center gap-2"
+            title="Notification Settings"
+          >
+            {isNotificationEnabled ? (
+              <Bell className="w-4 h-4 text-cyan-400 animate-swing" />
+            ) : (
+              <BellOff className="w-4 h-4 text-white/40" />
+            )}
+            <span className="text-xs font-bold uppercase tracking-wider text-white/80">Reminders</span>
+          </button>
+
+          <AnimatePresence>
+            {showSettings && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                className="absolute right-0 top-12 w-72 bg-slate-900/95 border border-white/15 rounded-2xl p-4 shadow-2xl backdrop-blur-xl z-50 flex flex-col gap-4 text-left"
+              >
+                <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                  <h4 className="font-bold text-sm text-white flex items-center gap-2">
+                    <Bell className="w-4 h-4 text-cyan-400" />
+                    Study Reminders
+                  </h4>
+                  <button 
+                    onClick={() => setShowSettings(false)}
+                    className="text-white/40 hover:text-white text-xs cursor-pointer"
+                  >
+                    Close
+                  </button>
+                </div>
+
+                {/* Reminder Toggle */}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-white/70">Enable Reminders</span>
+                  <button
+                    onClick={handleToggleNotifications}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      isNotificationEnabled ? "bg-cyan-500" : "bg-white/10"
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                        isNotificationEnabled ? "translate-x-5" : "translate-x-0"
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {isNotificationEnabled && (
+                  <>
+                    {/* Time Input */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-white/70">Daily Reminder Time</span>
+                      <input
+                        type="time"
+                        value={notificationTime}
+                        onChange={(e) => handleTimeChange(e.target.value)}
+                        className="bg-white/5 border border-white/10 text-white rounded px-2 py-1 text-xs focus:outline-none focus:border-cyan-500"
+                      />
+                    </div>
+
+                    {/* Test Button */}
+                    <button
+                      onClick={() => sendImmediateTestNotification()}
+                      className="w-full py-2 bg-cyan-500/10 hover:bg-cyan-500/25 border border-cyan-500/30 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors text-cyan-300 cursor-pointer"
+                    >
+                      Send Test Notification
+                    </button>
+                  </>
+                )}
+
+                {!isNotificationEnabled && (
+                  <p className="text-[10px] text-white/40 leading-relaxed italic">
+                    Enable reminders to get daily alerts at your preferred study times and keep your momentum up!
+                  </p>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
         
         {/* Header Section */}
         <motion.header 

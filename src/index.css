@@ -2,9 +2,18 @@
 
 @theme {
   --animate-marquee: marquee 25s linear infinite;
+  --animate-swing: swing 2s ease-in-out infinite;
   
   @keyframes marquee {
     0% { transform: translateX(0); }
     100% { transform: translateX(-50%); }
+  }
+  @keyframes swing {
+    0%, 100% { transform: rotate(0); }
+    15% { transform: rotate(12deg); }
+    30% { transform: rotate(-10deg); }
+    45% { transform: rotate(4deg); }
+    60% { transform: rotate(-4deg); }
+    75% { transform: rotate(0); }
   }
 }

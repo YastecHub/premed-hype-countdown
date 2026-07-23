@@ -15,21 +15,20 @@ export function Countdown({ targetDate }: CountdownProps) {
   }, []);
 
   const target = new Date(targetDate);
-  const diffSeconds = differenceInSeconds(target, now);
+  const diffSeconds = Math.max(0, differenceInSeconds(target, now));
   
-  // Prevent negative countdowns
-  const duration = intervalToDuration({
-    start: now,
-    end: diffSeconds > 0 ? target : now,
-  });
+  const totalDays = Math.floor(diffSeconds / 86400);
+  const hours = Math.floor((diffSeconds % 86400) / 3600);
+  const minutes = Math.floor((diffSeconds % 3600) / 60);
+  const seconds = diffSeconds % 60;
 
-  const pad = (n: number | undefined) => (n || 0).toString().padStart(2, "0");
+  const pad = (n: number) => n.toString().padStart(2, "0");
 
   const timeUnits = [
-    { label: "DAYS", value: pad(duration.days) },
-    { label: "HRS", value: pad(duration.hours) },
-    { label: "MINS", value: pad(duration.minutes) },
-    { label: "SECS", value: pad(duration.seconds) },
+    { label: "DAYS", value: pad(totalDays) },
+    { label: "HRS", value: pad(hours) },
+    { label: "MINS", value: pad(minutes) },
+    { label: "SECS", value: pad(seconds) },
   ];
 
   return (
