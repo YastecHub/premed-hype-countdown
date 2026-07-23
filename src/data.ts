@@ -1,6 +1,7 @@
 export interface Exam {
   id: number;
   course: string;
+  title: string;
   date: string;
   time: string;
   timestamp: string;
@@ -10,75 +11,66 @@ export interface Exam {
 export const EXAMS: Exam[] = [
   {
     id: 1,
-    course: "GST",
-    date: "Tuesday, March 3",
-    time: "9am - 12pm",
-    timestamp: "2026-03-03T09:00:00",
-    venue: "DLI BLK 1 & BLK 2"
+    course: "GST 112",
+    title: "Nigerian Peoples and Culture",
+    date: "Saturday, August 8",
+    time: "10:00 AM",
+    timestamp: "2026-08-08T10:00:00",
+    venue: "DLI Centre"
   },
   {
     id: 2,
-    course: "BIO 101",
-    date: "Monday, March 9",
-    time: "9am - 12pm",
-    timestamp: "2026-03-09T09:00:00",
-    venue: "DLI BLK 1 & BLK 2"
+    course: "PHY-CM 102",
+    title: "General Physics II",
+    date: "Wednesday, August 19",
+    time: "9:00 AM",
+    timestamp: "2026-08-19T09:00:00",
+    venue: "DLI Centre"
   },
   {
     id: 3,
-    course: "PHY 103",
-    date: "Wednesday, March 11",
-    time: "9am - 12pm",
-    timestamp: "2026-03-11T09:00:00",
-    venue: "DLI BLK 1 & BLK 2"
-  },
-  {
-    id: 5,
-    course: "PHY 101",
-    date: "Monday, March 16",
-    time: "9am - 12pm",
-    timestamp: "2026-03-16T09:00:00",
-    venue: "DLI BLK 1 & BLK 2"
-  },
-  {
-    id: 6,
-    course: "COS 101",
-    date: "Tuesday, March 17",
-    time: "9am - 12pm",
-    timestamp: "2026-03-17T09:00:00",
-    venue: "DLI BLK 1 & BLK 2"
-  },
-  {
-    id: 7,
-    course: "PCY 101(PharmD Students Only)",
-    date: "Monday, March 23",
-    time: "9am - 12pm",
-    timestamp: "2026-03-23T09:00:00",
-    venue: "Idi-Araba College of Medicine"
-  },
-  {
-    id: 8,
-    course: "MTH 101",
-    date: "Tuesday, March 24",
-    time: "9am - 12pm",
-    timestamp: "2026-03-24T09:00:00",
-    venue: "DLI BLK 1 & BLK 2"
-  },
-  {
-    id: 9,
-    course: "CHM 101",
-    date: "Wednesday, March 25",
-    time: "9am - 12pm",
-    timestamp: "2026-03-25T09:00:00",
-    venue: "DLI BLK 1 & BLK 2"
+    course: "PHY-CM 104",
+    title: "General Physics IV",
+    date: "Friday, August 21",
+    time: "9:00 AM",
+    timestamp: "2026-08-21T09:00:00",
+    venue: "DLI Centre"
   },
   {
     id: 4,
-    course: "ZOO 101",
-    date: "Friday, March 27",
-    time: "9am - 12pm",
-    timestamp: "2026-03-27T09:00:00",
-    venue: "LT009 & LT018 & LT026"
+    course: "MTH 102",
+    title: "Elementary Mathematics II",
+    date: "Monday, August 24",
+    time: "7:24 AM",
+    timestamp: "2026-08-24T07:24:00",
+    venue: "DLI Centre"
+  },
+  {
+    id: 5,
+    course: "ZOO 102",
+    title: "Animal Diversity",
+    date: "Tuesday, August 25",
+    time: "7:17 AM",
+    timestamp: "2026-08-25T07:17:00",
+    venue: "DLI Centre"
+  },
+  {
+    id: 6,
+    course: "CHM-CM 102",
+    title: "General Chemistry II",
+    date: "Wednesday, August 26",
+    time: "9:00 AM",
+    timestamp: "2026-08-26T09:00:00",
+    venue: "DLI Centre"
+  },
+  {
+    id: 7,
+    course: "BIO 102",
+    title: "General Biology II",
+    date: "Thursday, August 27",
+    time: "7:19 AM",
+    timestamp: "2026-08-27T07:19:00",
+    venue: "DLI Centre"
   }
 ];
 

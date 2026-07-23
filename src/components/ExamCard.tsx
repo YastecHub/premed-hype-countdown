@@ -50,9 +50,12 @@ export function ExamCard({ exam, status, index }: ExamCardProps) {
           )}>
             {exam.course}
           </h3>
-          <p className="text-sm text-white/40 font-medium">First Semester Exam</p>
+          <p className="text-sm font-semibold text-cyan-400 mt-1 mb-1 leading-snug">
+            {exam.title}
+          </p>
+          <p className="text-xs text-white/40 font-medium">Second Semester Exam</p>
         </div>
-        {isCompleted && <CheckCircle2 className="text-emerald-500 w-6 h-6" />}
+        {isCompleted && <CheckCircle2 className="text-emerald-500 w-6 h-6 shrink-0 ml-2" />}
       </div>
 
       <div className="space-y-3">
