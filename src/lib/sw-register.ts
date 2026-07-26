@@ -123,3 +123,52 @@ export async function unregisterServiceWorker(): Promise<void> {
     console.error('Service Worker unregistration failed:', error);
   }
 }
+
+// Automatically clear the cache if a new version is detected and the user is online
+export async function checkForUpdateAndClearCache(): Promise<void> {
+  const CURRENT_VERSION = "2026-v2";
+  
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const storedVersion = localStorage.getItem("app-version");
+
+  if (storedVersion !== CURRENT_VERSION) {
+    // Only perform the reload update when online to prevent showing an offline error screen
+    if (navigator.onLine) {
+      console.log(`New app version detected (${CURRENT_VERSION}). Performing cache migration...`);
+      
+      // 1. Clear Cache Storage
+      if ('caches' in window) {
+        try {
+          const keys = await caches.keys();
+          await Promise.all(keys.map(key => caches.delete(key)));
+          console.log('Cache Storage cleared successfully');
+        } catch (err) {
+          console.error('Failed to clear Cache Storage:', err);
+        }
+      }
+
+      // 2. Unregister Service Workers
+      if ('serviceWorker' in navigator) {
+        try {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(registrations.map(reg => reg.unregister()));
+          console.log('Service Workers unregistered successfully');
+        } catch (err) {
+          console.error('Failed to unregister Service Workers:', err);
+        }
+      }
+
+      // 3. Mark version updated
+      localStorage.setItem("app-version", CURRENT_VERSION);
+      
+      // 4. Force reload to download updated assets from network
+      console.log('Reloading page to fetch updated assets...');
+      window.location.reload();
+    } else {
+      console.log('New app version detected, but device is offline. Cache clear postponed.');
+    }
+  }
+}
