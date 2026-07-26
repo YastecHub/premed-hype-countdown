@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { EXAMS } from "./data";
+import { getExamsForCourse } from "./data";
 import { Countdown } from "./components/Countdown";
 import { QuoteTicker } from "./components/QuoteTicker";
 import { ExamCard } from "./components/ExamCard";
 import { ShareCountdown } from "./components/ShareCountdown";
 import { NotificationPrompt } from "./components/NotificationPrompt";
+import { GstTimetableModal } from "./components/GstTimetableModal";
 import { differenceInCalendarDays } from "date-fns";
 import { motion, AnimatePresence } from "motion/react";
 import { Sparkles, GraduationCap, ArrowDown, Bell, BellOff } from "lucide-react";
@@ -25,6 +26,13 @@ export default function App() {
   const [isNotificationEnabled, setIsNotificationEnabled] = useState(false);
   const [notificationTime, setNotificationTime] = useState("08:00");
   const [showSettings, setShowSettings] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("user-premed-course") || "MBBS (Medicine & Surgery)";
+    }
+    return "MBBS (Medicine & Surgery)";
+  });
+  const [isTimetableOpen, setIsTimetableOpen] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
@@ -50,7 +58,7 @@ export default function App() {
       const dailyCleanup = setupDailyNotificationScheduler(notificationTime);
       const intervalCleanup = setup3HourNotificationScheduler();
       sendNotificationToReturningUser();
-      
+
       return () => {
         dailyCleanup?.();
         intervalCleanup?.();
@@ -84,8 +92,11 @@ export default function App() {
     setNotificationPreferences({ enabled: isNotificationEnabled, time: newTime });
   };
 
+  // Get exams based on selected course
+  const exams = getExamsForCourse(selectedCourse);
+
   // Find the next upcoming exam
-  const upcomingExams = EXAMS.filter((exam) => new Date(exam.timestamp) > now);
+  const upcomingExams = exams.filter((exam) => new Date(exam.timestamp) > now);
   const nextExam = upcomingExams.length > 0 ? upcomingExams[0] : null;
   const allCompleted = upcomingExams.length === 0;
 
@@ -100,7 +111,7 @@ export default function App() {
       <Analytics />
       <NotificationPrompt onEnabled={() => setIsNotificationEnabled(true)} />
       <div className="relative z-10 max-w-md mx-auto md:max-w-3xl px-4 py-8 md:py-12 flex flex-col min-h-screen">
-        
+
         {/* Top Control Bar */}
         <div className="flex justify-end mb-2 relative">
           <button
@@ -129,7 +140,7 @@ export default function App() {
                     <Bell className="w-4 h-4 text-cyan-400" />
                     Study Reminders
                   </h4>
-                  <button 
+                  <button
                     onClick={() => setShowSettings(false)}
                     className="text-white/40 hover:text-white text-xs cursor-pointer"
                   >
@@ -142,14 +153,12 @@ export default function App() {
                   <span className="text-xs font-medium text-white/70">Enable Reminders</span>
                   <button
                     onClick={handleToggleNotifications}
-                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      isNotificationEnabled ? "bg-cyan-500" : "bg-white/10"
-                    }`}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isNotificationEnabled ? "bg-cyan-500" : "bg-white/10"
+                      }`}
                   >
                     <span
-                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                        isNotificationEnabled ? "translate-x-5" : "translate-x-0"
-                      }`}
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isNotificationEnabled ? "translate-x-5" : "translate-x-0"
+                        }`}
                     />
                   </button>
                 </div>
@@ -189,9 +198,9 @@ export default function App() {
             )}
           </AnimatePresence>
         </div>
-        
+
         {/* Header Section */}
-        <motion.header 
+        <motion.header
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
@@ -204,10 +213,10 @@ export default function App() {
             Exam <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">Countdown</span>
           </h1>
           <div className="overflow-hidden relative w-full max-w-sm mx-auto h-6 mb-2">
-             <div className="animate-marquee whitespace-nowrap text-xs font-medium text-white/40 uppercase tracking-wider">
-                MBBS • Pharmacy • Nursing • Radiography • Dentistry • MLS • Physiotherapy • Anatomy • Pharmacology • Physiology •
-                MBBS • Pharmacy • Nursing • Radiography • Dentistry • MLS • Physiotherapy • Anatomy • Pharmacology • Physiology •
-             </div>
+            <div className="animate-marquee whitespace-nowrap text-xs font-medium text-white/40 uppercase tracking-wider">
+              MBBS • Pharmacy • Nursing • Radiography • Dentistry • MLS • Physiotherapy • Anatomy • Pharmacology • Physiology •
+              MBBS • Pharmacy • Nursing • Radiography • Dentistry • MLS • Physiotherapy • Anatomy • Pharmacology • Physiology •
+            </div>
           </div>
           <p className="text-white/50 text-sm md:text-base">
             Stay focused. Stay hungry. Crush it.
@@ -217,7 +226,7 @@ export default function App() {
         {/* Hero Section: Countdown or Celebration */}
         <div className="mb-12">
           {allCompleted ? (
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               className="text-center py-12 px-6 bg-gradient-to-b from-emerald-500/20 to-transparent border border-emerald-500/30 rounded-3xl backdrop-blur-md"
@@ -244,14 +253,14 @@ export default function App() {
         <div className="space-y-2 pb-12">
           <div className="flex items-center justify-between px-2 mb-4">
             <h3 className="text-lg font-bold text-white/90">Schedule</h3>
-            <span className="text-xs font-medium text-white/40">{EXAMS.length} Exams Total</span>
+            <span className="text-xs font-medium text-white/40">{exams.length} Exams Total</span>
           </div>
-          
+
           <div className="flex flex-col">
-            {EXAMS.map((exam, index) => {
+            {exams.map((exam, index) => {
               // Determine status
               let status: "completed" | "next" | "upcoming" = "upcoming";
-              
+
               if (new Date(exam.timestamp) < now) {
                 status = "completed";
               } else if (exam.id === nextExam?.id) {
@@ -259,19 +268,25 @@ export default function App() {
               }
 
               // Calculate gap to next exam
-              const nextExamItem = EXAMS[index + 1];
-              const daysUntilNext = nextExamItem 
+              const nextExamItem = exams[index + 1];
+              const daysUntilNext = nextExamItem
                 ? differenceInCalendarDays(new Date(nextExamItem.timestamp), new Date(exam.timestamp))
                 : 0;
 
               return (
                 <div key={exam.id} className="flex flex-col">
-                  <ExamCard 
-                    exam={exam} 
-                    status={status} 
-                    index={index} 
+                  <ExamCard
+                    exam={exam}
+                    status={status}
+                    index={index}
+                    selectedCourse={selectedCourse}
+                    onCourseChange={(course) => {
+                      setSelectedCourse(course);
+                      localStorage.setItem("user-premed-course", course);
+                    }}
+                    onViewTimetable={() => setIsTimetableOpen(true)}
                   />
-                  
+
                   {/* Gap Indicator */}
                   {nextExamItem && daysUntilNext > 0 && (
                     <div className="flex items-center justify-center py-4 relative">
@@ -284,11 +299,11 @@ export default function App() {
                       </div>
                     </div>
                   )}
-                  
+
                   {/* Spacer if no gap but not last item (e.g. same day exams) */}
                   {nextExamItem && daysUntilNext === 0 && (
                     <div className="h-4 relative">
-                        <div className="absolute left-1/2 -translate-x-1/2 h-full w-px bg-white/5" />
+                      <div className="absolute left-1/2 -translate-x-1/2 h-full w-px bg-white/5" />
                     </div>
                   )}
                 </div>
@@ -307,6 +322,20 @@ export default function App() {
           </p>
         </footer>
       </div>
+
+      <AnimatePresence>
+        {isTimetableOpen && (
+          <GstTimetableModal
+            isOpen={isTimetableOpen}
+            onClose={() => setIsTimetableOpen(false)}
+            selectedCourse={selectedCourse}
+            onSelectCourse={(course) => {
+              setSelectedCourse(course);
+              localStorage.setItem("user-premed-course", course);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { EXAMS } from "../data";
+import { getExams } from "../data";
 import { differenceInCalendarDays, differenceInSeconds, intervalToDuration } from "date-fns";
 import { sendNotificationViaServiceWorker } from "./sw-register";
 
@@ -35,9 +35,9 @@ export function getNotificationPreferences(): NotificationPreferences {
   return stored
     ? JSON.parse(stored)
     : {
-        enabled: false,
-        time: "08:00"
-      };
+      enabled: false,
+      time: "08:00"
+    };
 }
 
 export function setNotificationPreferences(prefs: NotificationPreferences): void {
@@ -73,7 +73,7 @@ function getRandomMotivation(): string {
 
 export function getUpcomingExamMessage(): string {
   const now = new Date();
-  const upcomingExams = EXAMS.filter(exam => new Date(exam.timestamp) > now);
+  const upcomingExams = getExams().filter(exam => new Date(exam.timestamp) > now);
 
   if (upcomingExams.length === 0) {
     return "All exams completed! Time to celebrate! 🎉";
@@ -107,7 +107,7 @@ export function sendDailyReminder(): void {
   }
 
   const now = new Date();
-  const upcomingExams = EXAMS.filter(exam => new Date(exam.timestamp) > now);
+  const upcomingExams = getExams().filter(exam => new Date(exam.timestamp) > now);
 
   if (upcomingExams.length === 0) {
     const title = "🎉 All Exams Complete!";
@@ -146,7 +146,7 @@ export function sendImmediateTestNotification(): void {
   }
 
   const now = new Date();
-  const upcomingExams = EXAMS.filter(exam => new Date(exam.timestamp) > now);
+  const upcomingExams = getExams().filter(exam => new Date(exam.timestamp) > now);
 
   if (upcomingExams.length === 0) {
     const title = "🎉 UNILAG PreMed - All Done!";
@@ -244,7 +244,7 @@ export function send3HourIntervalNotification(): void {
     return;
   }
 
-  const upcomingExams = EXAMS.filter(exam => new Date(exam.timestamp) > now);
+  const upcomingExams = getExams().filter(exam => new Date(exam.timestamp) > now);
 
   if (upcomingExams.length === 0) {
     return; // No exams, don't send
@@ -313,7 +313,7 @@ export function sendNotificationToReturningUser(): void {
   localStorage.setItem(RETURNING_USER_NOTIFIED_KEY, "true");
 
   const now = new Date();
-  const upcomingExams = EXAMS.filter(exam => new Date(exam.timestamp) > now);
+  const upcomingExams = getExams().filter(exam => new Date(exam.timestamp) > now);
 
   if (upcomingExams.length === 0) {
     return;

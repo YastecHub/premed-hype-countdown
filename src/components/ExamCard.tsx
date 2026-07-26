@@ -1,16 +1,26 @@
 import { motion } from "motion/react";
-import { Calendar, Clock, MapPin, CheckCircle2, AlertCircle } from "lucide-react";
+import { Calendar, Clock, MapPin, CheckCircle2, AlertCircle, ChevronDown } from "lucide-react";
 import { cn } from "../lib/utils";
-import { Exam } from "../data";
+import { Exam, PREMED_COURSES } from "../data";
 import { isPast, isToday } from "date-fns";
 
 interface ExamCardProps {
   exam: Exam;
   status: "completed" | "next" | "upcoming";
   index: number;
+  selectedCourse?: string;
+  onCourseChange?: (course: string) => void;
+  onViewTimetable?: () => void;
 }
 
-export function ExamCard({ exam, status, index }: ExamCardProps) {
+export function ExamCard({
+  exam,
+  status,
+  index,
+  selectedCourse,
+  onCourseChange,
+  onViewTimetable
+}: ExamCardProps) {
   const isNext = status === "next";
   const isCompleted = status === "completed";
 
@@ -57,6 +67,47 @@ export function ExamCard({ exam, status, index }: ExamCardProps) {
         </div>
         {isCompleted && <CheckCircle2 className="text-emerald-500 w-6 h-6 shrink-0 ml-2" />}
       </div>
+
+      {exam.course === "GST 112" && onCourseChange && selectedCourse && (
+        <div className="mt-2 mb-4 p-3.5 bg-slate-950/40 border border-white/10 rounded-xl relative z-30 flex flex-col gap-2 shadow-inner">
+          <div>
+            <label htmlFor="course-select-card" className="block text-[9px] font-bold text-cyan-400 uppercase tracking-widest mb-1.5 text-left">
+              Department / Course
+            </label>
+            <div className="relative">
+              <select
+                id="course-select-card"
+                value={selectedCourse}
+                onChange={(e) => onCourseChange(e.target.value)}
+                className="w-full bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-white/95 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/30 transition-all appearance-none cursor-pointer pr-8"
+              >
+                {PREMED_COURSES.map((c) => (
+                  <option key={c.name} value={c.name} className="bg-slate-950 text-white">
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-white/40">
+                <ChevronDown className="w-3.5 h-3.5" />
+              </div>
+            </div>
+          </div>
+          {onViewTimetable && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onViewTimetable();
+              }}
+              className="text-[9px] font-bold text-cyan-400/80 hover:text-cyan-300 transition-colors uppercase tracking-wider text-left flex items-center gap-1 mt-0.5 cursor-pointer w-fit"
+            >
+              <Calendar className="w-3 h-3 shrink-0 text-cyan-400/60" />
+              <span>View Full Timetable</span>
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="space-y-3">
         <div className="flex items-center gap-3 text-sm">
