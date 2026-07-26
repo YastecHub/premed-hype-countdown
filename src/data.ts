@@ -133,6 +133,14 @@ export const PREMED_COURSES: PremedCourse[] = [
     gstVenue: "Engineering"
   },
   {
+    name: "Nursing NACON",
+    faculty: "Health Professions (CMUL)",
+    gstDate: "Friday, August 7",
+    gstTimestamp: "2026-08-07T08:00:00",
+    gstTime: "8:00 AM - 12:00 PM",
+    gstVenue: "Engineering"
+  },
+  {
     name: "Radiography",
     faculty: "Health Professions (CMUL)",
     gstDate: "Friday, August 7",
